@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
   } 
  
   // load an image  
-  img=cvLoadImage("1.jpg",1);
+  img=cvLoadImage("2.jpg",1);
   if(!img){
     printf("Could not load image file: %s\n",argv[1]);
     //exit(0);
