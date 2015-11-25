@@ -1,48 +1,60 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-using namespace std;
 using namespace cv;
 
-double alpha; /**< 控制对比度 */
-int beta;  /**< 控制亮度 */
+/// 全局变量
+Mat src, dst, tmp;
+char* window_name = "Pyramids Demo";
 
+
+/**
+ * @函数 main
+ */
 int main( int argc, char** argv )
 {
-    /// 读入用户提供的图像
-    Mat image = imread( "1.jpg" );
-    Mat new_image = Mat::zeros( image.size(), image.type() );
+  /// 指示说明
+  printf( "\n Zoom In-Out demo  \n " );
+  printf( "------------------ \n" );
+  printf( " * [u] -> Zoom in  \n" );
+  printf( " * [d] -> Zoom out \n" );
+  printf( " * [ESC] -> Close program \n \n" );
 
-    /// 初始化
-    cout << " Basic Linear Transforms " << endl;
-    cout << "-------------------------" << endl;
-    cout << "* Enter the alpha value [1.0-5.0]: ";
-    cin >> alpha;
-    cout << "* Enter the beta value [0-100]: ";
-    cin >> beta;
+  /// 测试图像 - 尺寸必须能被 2^{n} 整除
+  src = imread( "3333.jpg" );
+  if( !src.data )
+    { printf(" No data! -- Exiting the program \n");
+      return -1; }
 
-    /// 执行运算 new_image(i,j) = alpha*image(i,j) + beta
-    for( int y = 0; y < image.rows; y++ )
-    {
-        for( int x = 0; x < image.cols; x++ )
-        {
-            for( int c = 0; c < 3; c++ )
-            {
-                new_image.at<Vec3b>(y,x)[c] = saturate_cast<uchar>( alpha*( image.at<Vec3b>(y,x)[c] ) + beta );
-            }
-        }
-    }
+  tmp = src;
+  dst = tmp;
 
-    /// 创建窗口
-    namedWindow("Original Image", 1);
-    namedWindow("New Image", 1);
+  /// 创建显示窗口
+  namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+  imshow( window_name, dst );
 
-    /// 显示图像
-    imshow("Original Image", image);
-    imshow("New Image", new_image);
+  /// 循环
+  while( true )
+  {
+    int c;
+    c = waitKey(10);
 
-    /// 等待用户按键
-    waitKey();
-    return 0;
+    if( (char)c == 27 )
+      { break; }
+    if( (char)c == 'u' )
+      { pyrUp( tmp, dst, Size( tmp.cols*2, tmp.rows*2 ) );
+        printf( "** Zoom In: Image x 2 \n" );
+      }
+    else if( (char)c == 'a' )
+     { pyrDown( tmp, dst, Size( tmp.cols/2, tmp.rows/2 ) );
+       printf( "** Zoom Out: Image / 2 /n" );
+     }
+
+    imshow( window_name, dst );
+    tmp = dst;
+  }
+  return 0;
 }
